@@ -33,6 +33,14 @@ class MultisigView extends React.Component<{ minSigRequired: number, pubKeys: an
     }
     return { address: "", redeem: "" }
   }
+
+  getPublicKeys = () => {
+    let items = [];
+    for (let val in this.props.pubKeys) {
+      items.push(<Form.Control type="textarea" readOnly value={`#${parseInt(val) + 1} : ${this.props.pubKeys[val]} \n`} />)
+    }
+    return items;
+  }
   render() {
     if (!this.validate()) {
       return (<div><Alert variant="warning">
@@ -59,6 +67,10 @@ class MultisigView extends React.Component<{ minSigRequired: number, pubKeys: an
             <Form.Group controlId="exampleForm.ControlTextarea1">
               <Form.Label>Redeem Script</Form.Label>
               <Form.Control type="textarea" readOnly value={this.generate().redeem} />
+            </Form.Group>
+            <Form.Group controlId="exampleForm.ControlTextar">
+              <Form.Label>Public Key for All Participants</Form.Label>
+              {this.getPublicKeys()}
             </Form.Group>
           </Form>)}
       </Container>
