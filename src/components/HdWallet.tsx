@@ -20,25 +20,32 @@ class HdWalletComponent extends React.Component<{ hdSeed: string, derPath: strin
     }
     render() {
       let hdseed = this.props.hdSeed;
-      let seedBuffer = Buffer.from(hdseed);
+      let seedBuffer;
       if(/^m(\/(\d+|\d+'))+$/.test(this.props.derPath) === false){
         return <Alert variant="warning">
             Check Your Derivation Path
           </Alert>
       }
-      let userMnemonic = '';
+      let userMnemonic = '', xpriv = '';
+      let seedNode ;
       if (this.props.isSeedMnemonic) {
+
         if (!bip39.validateMnemonic(hdseed)) {
           return <Alert variant="warning">
             Your 12-word mnemonic phrase is not valid !
           </Alert>
         }
-        userMnemonic = hdseed;
         seedBuffer = bip39.mnemonicToSeedSync(hdseed);
+        seedNode = bip32.fromSeed(seedBuffer, bitcoin.networks.bitcoin);
+        userMnemonic = hdseed;
+        xpriv = seedNode.toBase58();
       } else{
-        userMnemonic = bip39.entropyToMnemonic(seedBuffer);
+        seedBuffer = Buffer.from(hdseed);
+        seedNode = bip32.fromSeed(seedBuffer, bitcoin.networks.bitcoin);
+        userMnemonic = "N.A as You entered random seed.";
+        xpriv = seedNode.toBase58();
       }
-      let seedNode = bip32.fromSeed(seedBuffer, bitcoin.networks.bitcoin);
+      
       return (
         <div>
           <Container>
@@ -85,6 +92,28 @@ class HdWalletComponent extends React.Component<{ hdSeed: string, derPath: strin
                 <Form.Label>Your 12-Word Mnemonic </Form.Label>
                 <InputGroup>
                 <Form.Control type={this.state.seedShowType} readOnly value={userMnemonic} />
+                <InputGroup.Append>
+                                <Button variant="outline-dark" onClick={
+                                  (e: any) => {
+                                    if (this.state.seedShowType == "password") {
+                                      this.setState({
+                                        seedShowType: "textarea"
+                                      })
+                                    } else {
+                                      this.setState({
+                                        seedShowType: "password"
+                                      })
+                                    }
+
+                                  }
+                                }>view</Button>
+                              </InputGroup.Append>
+                </InputGroup>
+              </Form.Group>
+              <Form.Group controlId="exampleForm.ControlTextarea1">
+                <Form.Label>Root Extended Private Key (xpriv format) </Form.Label>
+                <InputGroup>
+                <Form.Control type={this.state.seedShowType} readOnly value={xpriv} />
                 <InputGroup.Append>
                                 <Button variant="outline-dark" onClick={
                                   (e: any) => {

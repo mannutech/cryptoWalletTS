@@ -286,7 +286,6 @@ class App extends React.Component<IProps, IState> {
                             </Button>
                           <Button variant="secondary" type="reset" onClick={(e: any) => {
                             this.setState({
-                              publicKeys: {},
                               minSig: 1,
                               totalParties: 1,
                               showMultiSigComponent: false
