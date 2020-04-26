@@ -59,13 +59,9 @@ class App extends React.Component<IProps, IState> {
     }
     if (!(seedRegex.test(this.state.hdSeed) || seedMnemonicRegex.test(this.state.hdSeed))) {
 
-      alert("** Please Check Your HD Seed Input Value **" + this.state.hdSeed)
+      alert("** Please Check Your HD Seed Input Value **")
       return;
-      //     <div><Alert variant="danger">
-      //     ** Please Check Your HD Seed Input Value **!
-      // </Alert></div>;
     }
-    // alert("The Changes look fine by the way")
     this.setState({
       showComponent: true,
       isSeedMnemonic: seedMnemonicRegex.test(this.state.hdSeed) ? true : false
@@ -89,7 +85,6 @@ class App extends React.Component<IProps, IState> {
       items.push(<Form.Control type="input" required placeholder={`Public Key #${i + 1}`}
         onChange={(e) => {
           e.preventDefault();
-          console.log("form", this.state.publicKeys)
           if (/^[0-9a-f]+/.test(e.target.value))
             this.setState(
               {
