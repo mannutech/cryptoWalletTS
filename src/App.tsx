@@ -1,5 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import * as bip39 from 'bip39';
 import { Button, Form, Container, Accordion, Card, Navbar, Col, Row, InputGroup } from 'react-bootstrap';
 import MultisigView from './components/MultiSig';
 import HdWalletComponent from './components/HdWallet';
@@ -104,6 +105,7 @@ class App extends React.Component<IProps, IState> {
     return <MultisigView minSigRequired={this.state.minSig} pubKeys={this.state.publicKeys} />
   }
   render() {
+    let isSwitchOn = false;
     return (
       <div className="App">
         <Navbar bg="dark" variant="dark">
@@ -136,11 +138,12 @@ class App extends React.Component<IProps, IState> {
                         <Form onSubmit={(e: any) => {
                           this.handleSubmit(e);
                         }}>
+
                           <Form.Group controlId="initial.HDSeed">
                             <Form.Label>Enter your HD Wallet Seed</Form.Label>
                             <InputGroup>
-                              <Form.Control type={this.state.seedInputType} required onChange={e => {
-                                this.setState({ hdSeed: e.target.value })
+                              <Form.Control type={this.state.seedInputType} required value={this.state.hdSeed} onChange={e => {
+                                this.setState({ hdSeed: e.target.value, showComponent: false })
                               }}
                               />
                               <InputGroup.Append>
@@ -160,13 +163,28 @@ class App extends React.Component<IProps, IState> {
                                 }>view</Button>
                               </InputGroup.Append>
                             </InputGroup>
+
                             <Form.Text className="text-muted">
                               You can either enter a 12-word mnemonic phrase or your own random seed
-                      </Form.Text>
+                            </Form.Text>
+                            <Form.Check
+                              type="switch"
+                              id="custom-switch"
+                              label="Auto-Generate"
+                              onChange={
+                                (e: any) => {
+                                  this.setState({
+                                    hdSeed: bip39.generateMnemonic(),
+                                    showComponent: false
+                                  })
+                                  isSwitchOn = true;
+                                }
+                              }
+                            />
                           </Form.Group>
                           <Form.Group controlId="initial.derivatioPath">
                             <Form.Label>Derivation Path</Form.Label>
-                            <Form.Control type="input" required onChange={e => {
+                            <Form.Control type="input" required placeholder="m/0" onChange={e => {
                               this.setState({ derPath: e.target.value })
                             }} />
                             <Form.Text className="text-muted">
