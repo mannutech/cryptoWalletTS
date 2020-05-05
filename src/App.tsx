@@ -1,111 +1,22 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import * as bip39 from 'bip39';
-import { Button, Form, Container, Accordion, Card, Navbar, Col, Row, InputGroup } from 'react-bootstrap';
-import MultisigView from './components/MultiSig';
-import HdWalletComponent from './components/HdWallet';
-
+import { Container, Accordion, Navbar, Col, Row } from 'react-bootstrap';
+import HDWalletInputCard from './components/HDWalletCard'
+import MultiSigCard from './components/MultisigCard';
 interface IProps {
 }
 
 interface IState {
-  derPath: string;
-  hdSeed: string;
-  showComponent: boolean;
-  showMultiSigComponent: boolean,
-  isSeedMnemonic: boolean;
-  minSig: number;
-  totalParties: number;
-  publicKeys: any;
-  seedInputType: string;
 }
 
 class App extends React.Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
     this.state = {
-      derPath: '',
-      hdSeed: '',
-      showComponent: false,
-      isSeedMnemonic: false,
-      totalParties: 1,
-      minSig: 1,
-      seedInputType: "password",
-      publicKeys: {
-
-      },
-      showMultiSigComponent: false
     }
-    this.handleSubmit.bind(this)
-    this.getFormControl.bind(this)
-  }
 
-  handleSubmit = (event: any) => {
-
-
-    event.preventDefault();
-    // React.useState(true);
-    let seedRegex = /^[0-9a-zA-Z]{16,64}$/;
-    let seedMnemonicRegex = /^([a-zA-Z]+(\s|$)){12,}/;
-    let derivationPathRegex = /^m(\/(\d+|\d+'))+$/;
-
-    if (seedMnemonicRegex.test(this.state.hdSeed)) {
-      this.setState({
-        isSeedMnemonic: true
-      })
-    }
-    if (!derivationPathRegex.test(this.state.derPath)) {
-      alert("** Please check your derivation Path ** ");
-      return;
-    }
-    if (!(seedRegex.test(this.state.hdSeed) || seedMnemonicRegex.test(this.state.hdSeed))) {
-
-      alert("** Please Check Your HD Seed Input Value **")
-      return;
-    }
-    this.setState({
-      showComponent: true,
-      isSeedMnemonic: seedMnemonicRegex.test(this.state.hdSeed) ? true : false
-    });
-
-  }
-
-  handleSubmitMultisig = (event: any) => {
-    event.preventDefault();
-    this.setState({ showMultiSigComponent: true });
-  }
-
-  getFormControl = () => {
-
-    if ((this.state.totalParties < this.state.minSig) || (this.state.totalParties < this.state.minSig)) {
-      alert(" ** Total Number of Parties cannot be less than minimum signatures required");
-      return;
-    }
-    let items = [];
-    for (let i = 0; i < this.state.totalParties; i++) {
-      items.push(<Form.Control type="input" required placeholder={`Public Key #${i + 1}`}
-        onChange={(e) => {
-          e.preventDefault();
-          if (/^[0-9a-f]+/.test(e.target.value))
-            this.setState(
-              {
-                publicKeys: { ...this.state.publicKeys, [i]: e.target.value },
-                showMultiSigComponent: false
-              }
-            )
-        }} />);
-    }
-    return items;
-  }
-
-  getMultiSigView = () => {
-    if (!this.state.showMultiSigComponent) {
-      return;
-    }
-    return <MultisigView minSigRequired={this.state.minSig} pubKeys={this.state.publicKeys} />
   }
   render() {
-    let isSwitchOn = false;
     return (
       <div className="App">
         <Navbar bg="dark" variant="dark">
@@ -121,185 +32,13 @@ class App extends React.Component<IProps, IState> {
               </Navbar.Brand>
         </Navbar>
         <Container fluid>
-          <br></br>
+          <Row> <br></br></Row>
           <Row>
             <Col></Col>
             <Col xs={6}>
               <Accordion>
-                <Card>
-                  <Card.Header>
-                    <Accordion.Toggle as={Button} variant="link" eventKey="0">
-                      Hierarchical Deterministic (HD) Segregated Witness (SegWit) Address
-      </Accordion.Toggle>
-                  </Card.Header>
-                  <Accordion.Collapse eventKey="0">
-                    <Card.Body>
-                      <Container >
-                        <Form onSubmit={(e: any) => {
-                          this.handleSubmit(e);
-                        }}>
-
-                          <Form.Group controlId="initial.HDSeed">
-                            <Form.Label>Enter your HD Wallet Seed</Form.Label>
-                            <InputGroup>
-                              <Form.Control type={this.state.seedInputType} required value={this.state.hdSeed} onChange={e => {
-                                this.setState({ hdSeed: e.target.value, showComponent: false })
-                              }}
-                              />
-                              <InputGroup.Append>
-                                <Button variant="outline-dark" onClick={
-                                  (e: any) => {
-                                    if (this.state.seedInputType == "password") {
-                                      this.setState({
-                                        seedInputType: "textarea"
-                                      })
-                                    } else {
-                                      this.setState({
-                                        seedInputType: "password"
-                                      })
-                                    }
-
-                                  }
-                                }>view</Button>
-                              </InputGroup.Append>
-                            </InputGroup>
-
-                            <Form.Text className="text-muted">
-                              You can either enter a 12-word mnemonic phrase or your own random seed
-                            </Form.Text>
-                            <Form.Check
-                              type="switch"
-                              id="custom-switch"
-                              label="Auto-Generate"
-                              onChange={
-                                (e: any) => {
-                                  this.setState({
-                                    hdSeed: bip39.generateMnemonic(),
-                                    showComponent: false
-                                  })
-                                  isSwitchOn = true;
-                                }
-                              }
-                            />
-                          </Form.Group>
-                          <Form.Group controlId="initial.derivatioPath">
-                            <Form.Label>Derivation Path</Form.Label>
-                            <Form.Control type="input" required placeholder="m/0" onChange={e => {
-                              this.setState({ derPath: e.target.value })
-                            }} />
-                            <Form.Text className="text-muted">
-                              Please enter path in the format: m/1/3'/0
-                       </Form.Text>
-                          </Form.Group>
-                          <Button variant="primary" type="submit" >
-                            Generate
-                          </Button>
-                          <Button variant="secondary" type="reset" onClick={(e: any) => {
-                            this.setState({
-                              publicKeys: {},
-                              hdSeed: '',
-                              derPath: '',
-                              showComponent: false
-                            })
-                          }}>
-                            Reset
-                            </Button>
-
-                        </Form>
-                        <br></br>
-                        {this.state.showComponent && <HdWalletComponent hdSeed={this.state.hdSeed} derPath={this.state.derPath} isSeedMnemonic={this.state.isSeedMnemonic} ></HdWalletComponent>}
-                      </Container>
-
-                    </Card.Body>
-                  </Accordion.Collapse>
-                </Card>
-                <Card>
-                  <Card.Header>
-                    <Accordion.Toggle as={Button} variant="link" eventKey="1">
-                      Multisignature (multi-sig) Pay-To-Script-Hash (P2SH) Address
-                    </Accordion.Toggle>
-                  </Card.Header>
-                  <Accordion.Collapse eventKey="1">
-                    <Card.Body>
-                      <Container >
-                        <Form onSubmit={(e: any) => {
-                          this.handleSubmitMultisig(e);
-                        }}>
-                          <Form.Row>
-                            <Form.Group as={Col} controlId="initial.Multisig">
-                              <Form.Label>"Minimum" Signatures Required </Form.Label>
-                              <Form.Control as="select" required defaultValue={this.state.minSig} onChange={
-                                e => {
-                                  this.setState({
-                                    minSig: parseInt(e.target.value),
-                                    showMultiSigComponent: false
-                                  });
-                                }
-                              }>
-                                <option >1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                                <option>6</option>
-                                <option>7</option>
-                                <option>8</option>
-                                <option>9</option>
-                                <option>10</option>
-                              </Form.Control>
-                              <Form.Text className="text-muted">
-                                Should be less than or equal to Total number of parties
-                      </Form.Text>
-                            </Form.Group>
-                            <Form.Group as={Col} controlId="initial.Multisig">
-                              <Form.Label>"Total" number of Parties</Form.Label>
-                              <Form.Control as="select" required defaultValue={this.state.totalParties} onChange={
-                                e => {
-                                  this.setState({
-                                    totalParties: parseInt(e.target.value),
-                                    showMultiSigComponent: false
-                                  });
-                                }
-                              }>
-                                <option>1</option>
-                                <option>2</option>
-                                <option>3</option>
-                                <option>4</option>
-                                <option>5</option>
-                                <option>6</option>
-                                <option>7</option>
-                                <option>8</option>
-                                <option>9</option>
-                                <option>10</option>
-                              </Form.Control>
-                              <Form.Text className="text-muted">
-                                Minimum 1 and Maximum 10
-                      </Form.Text>
-                            </Form.Group>
-                          </Form.Row>
-                          <Form.Group controlId="initial.derivatioPath">
-                            <Form.Label>Enter Public Key of all Parties</Form.Label>
-                            {this.getFormControl()}
-                          </Form.Group>
-                          <Button variant="primary" type="submit" >
-                            Generate
-                            </Button>
-                          <Button variant="secondary" type="reset" onClick={(e: any) => {
-                            this.setState({
-                              minSig: 1,
-                              totalParties: 1,
-                              showMultiSigComponent: false
-                            })
-                          }}>
-                            Reset
-                            </Button>
-                        </Form>
-                        <br></br>
-                        {this.getMultiSigView()}
-                      </Container>
-                    </Card.Body>
-                  </Accordion.Collapse>
-                </Card>
+                <HDWalletInputCard />
+                <MultiSigCard />
               </Accordion>
             </Col>
             <Col></Col>

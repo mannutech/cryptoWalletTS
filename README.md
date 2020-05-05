@@ -4,6 +4,11 @@
 ![function1](/screenshots/HD_Segwit_Wallet.png)
 ![Function2](/screenshots/MultisigWallet.png)
 
+### UPDATES
+* Test Case Updated
+* Error Handling
+* Bad Flows Handled
+
 ### Supported Functionalities:
 * HD Segwit Wallet Address Derivation at a specified path
 * Multisig Pay To Script Hash (P2SH)  BTC Wallet address derivation
